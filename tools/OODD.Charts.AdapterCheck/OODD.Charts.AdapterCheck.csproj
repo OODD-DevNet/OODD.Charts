@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>OODD.Charts.AdapterCheck</AssemblyName>
+    <RootNamespace>OODD.Charts.AdapterCheck</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- 从 Avalonia 的帧缓冲往托管数组搬像素需要指针，只在本检查工程里开。 -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Skia" Version="11.3.6" />
+    <ProjectReference Include="..\..\demo\OODD.Charts.Demo.Common\OODD.Charts.Demo.Common.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Medical\OODD.Charts.Medical.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Radar\OODD.Charts.Radar.csproj" />
+    <ProjectReference Include="..\..\src\Adapters\OODD.Charts.Adapters.WinForms\OODD.Charts.Adapters.WinForms.csproj" />
+    <ProjectReference Include="..\..\src\Adapters\OODD.Charts.Adapters.Wpf\OODD.Charts.Adapters.Wpf.csproj" />
+    <ProjectReference Include="..\..\src\Adapters\OODD.Charts.Adapters.Avalonia\OODD.Charts.Adapters.Avalonia.csproj" />
+  </ItemGroup>
+
+</Project>

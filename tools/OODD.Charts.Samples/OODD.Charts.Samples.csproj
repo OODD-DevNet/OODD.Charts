@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net462;net8.0-windows</TargetFrameworks>
+    <AssemblyName>OODD.Charts.Samples</AssemblyName>
+    <RootNamespace>OODD.Charts.Samples</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Medical\OODD.Charts.Medical.csproj" />
+    <ProjectReference Include="..\..\demo\OODD.Charts.Demo.Common\OODD.Charts.Demo.Common.csproj" />
+  </ItemGroup>
+
+</Project>

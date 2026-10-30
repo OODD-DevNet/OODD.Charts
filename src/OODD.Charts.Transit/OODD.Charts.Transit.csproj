@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts.Transit</RootNamespace>
+    <AssemblyName>OODD.Charts.Transit</AssemblyName>
+    <Description>交通运输表单：列车运行图、载重平衡与重心包线、集装箱积载图、危险货物联单、超限运输许可附图。基于 OODD.Charts.Core 引擎。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;net8.0-windows</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>OODD.Charts.Adapters.Wpf</AssemblyName>
+    <RootNamespace>OODD.Charts.Adapters.Wpf</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>WPF 宿主适配器：Raster/SKPicture 到 WriteableBitmap 的像素桥 + ChartControl。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

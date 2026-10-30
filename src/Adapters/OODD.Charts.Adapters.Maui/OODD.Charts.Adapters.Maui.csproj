@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- MAUI 类库：UseMaui + SingleProject 是 workload _targets 里解析平台引用的开关，见 docs/02 §8.2 -->
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-windows10.0.19041.0;net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <MauiVersion>10.0.20</MauiVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <Platforms>AnyCPU;x64</Platforms>
+    <RootNamespace>OODD.Charts.Adapters.Maui</RootNamespace>
+    <AssemblyName>OODD.Charts.Adapters.Maui</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <Description>MAUI 宿主适配器：Chart/Raster 到 ImageSource 的编码桥 + ChartImage、ChartCanvasView。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- .NET 8 起 UseMaui 不再自动带包，必须显式引用，否则 MA002（见 docs/02 §8.2 MAUI 行）。 -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="$(SkiaSharpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

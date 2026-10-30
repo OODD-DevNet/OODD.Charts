@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>OODD.Charts.Demo.Common</AssemblyName>
+    <RootNamespace>OODD.Charts.Demo</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Description>演示程序共用的 40 张样例数据与登记表，同时供 tools/Samples 与测试取证。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Medical\OODD.Charts.Medical.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Radar\OODD.Charts.Radar.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Engineering\OODD.Charts.Engineering.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Transit\OODD.Charts.Transit.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Geoscience\OODD.Charts.Geoscience.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Tickets\OODD.Charts.Tickets.csproj" />
+  </ItemGroup>
+
+</Project>

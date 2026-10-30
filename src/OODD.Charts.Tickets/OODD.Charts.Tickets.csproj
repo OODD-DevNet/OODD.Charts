@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts.Tickets</RootNamespace>
+    <AssemblyName>OODD.Charts.Tickets</AssemblyName>
+    <Description>凭证家族：电气工作票（三联）、八类特殊作业票、增值税专用发票（多联 + 密码区 + 压印大写）。基于 OODD.Charts.Core 引擎。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

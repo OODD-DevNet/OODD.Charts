@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts</RootNamespace>
+    <AssemblyName>OODD.Charts.Core</AssemblyName>
+    <Description>跨平台刚性网格表单渲染引擎（SkiaSharp 内核）。不含任何 UI 框架依赖。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
+  </ItemGroup>
+
+</Project>

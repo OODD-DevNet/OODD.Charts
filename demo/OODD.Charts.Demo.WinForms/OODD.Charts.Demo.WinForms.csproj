@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>OODD.Charts.Demo.WinForms</AssemblyName>
+    <RootNamespace>OODD.Charts.Demo.WinForms</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Description>WinForms 演示程序：40 张单据（含 360°/180° 雷达）切换、贴合与缩放、导出 PNG/PDF/SVG。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Demo.Common\OODD.Charts.Demo.Common.csproj" />
+    <ProjectReference Include="..\..\src\Adapters\OODD.Charts.Adapters.WinForms\OODD.Charts.Adapters.WinForms.csproj" />
+  </ItemGroup>
+
+</Project>

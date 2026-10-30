@@ -1,0 +1,37 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <Version>1.0.0</Version>
+    <Authors>OODD</Authors>
+    <Product>OODD.Charts</Product>
+    <Copyright>Copyright (c) OODD</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/OODD-DevNet/OODD.Charts</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/OODD-DevNet/OODD.Charts</PackageProjectUrl>
+    <PackageTags>skia;charts;forms;pdf;svg;cross-platform;medical;radar</PackageTags>
+    <PackageReadmeFile Condition="Exists('$(MSBuildThisFileDirectory)docs/nuget-readme.md')">README.md</PackageReadmeFile>
+
+    <SkiaSharpVersion>3.116.1</SkiaSharpVersion>
+
+    <!-- 最低公分母矩阵，见 docs/02-设计文档.md §9.1 -->
+    <PortableTFMs>net462;netstandard2.0;net8.0</PortableTFMs>
+  </PropertyGroup>
+
+  <!-- net462 在无 VS 的机器上需要引用程序集包 -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(IsPackable)' != 'false' And Exists('$(MSBuildThisFileDirectory)docs/nuget-readme.md') ">
+    <None Include="$(MSBuildThisFileDirectory)docs/nuget-readme.md" Pack="true" PackagePath="README.md" Visible="false" />
+  </ItemGroup>
+
+</Project>

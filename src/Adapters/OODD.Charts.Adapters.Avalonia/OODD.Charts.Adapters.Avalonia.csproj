@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <AssemblyName>OODD.Charts.Adapters.Avalonia</AssemblyName>
+    <RootNamespace>OODD.Charts.Adapters.Avalonia</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>Avalonia 宿主适配器：Raster/SKPicture 到 WriteableBitmap 的像素桥 + ChartControl。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.6" />
+    <ProjectReference Include="..\..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -55,3 +55,17 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# ---- OODD.Charts: 不随仓库公开的内容 ----
+# 内部需求/设计/调研/任务/使用文档与调研原文
+docs/*.md
+docs/_research-raw-*.md
+# 内部章节草稿（合并进 README 后即删除）
+docs/readme-zh/
+docs/readme-en/
+# 渲染取证产物（体积大、可重新生成；图集已复制到 docs/images 供 README 使用）
+artifacts/
+# 本地打包/发布产物
+dist/
+# 第三方 GDI+ 参考实现（来源许可未确认，仅本地对标，不参与编译）
+TemperatureChart/

@@ -1,0 +1,33 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OODD.Charts.Core/OODD.Charts.Core.csproj" />
+    <Project Path="src/OODD.Charts.Medical/OODD.Charts.Medical.csproj" />
+    <Project Path="src/OODD.Charts.Radar/OODD.Charts.Radar.csproj" />
+    <Project Path="src/OODD.Charts.Engineering/OODD.Charts.Engineering.csproj" />
+    <Project Path="src/OODD.Charts.Transit/OODD.Charts.Transit.csproj" />
+    <Project Path="src/OODD.Charts.Geoscience/OODD.Charts.Geoscience.csproj" />
+    <Project Path="src/OODD.Charts.Tickets/OODD.Charts.Tickets.csproj" />
+  </Folder>
+  <Folder Name="/src/Adapters/">
+    <Project Path="src/Adapters/OODD.Charts.Adapters.WinForms/OODD.Charts.Adapters.WinForms.csproj" />
+    <Project Path="src/Adapters/OODD.Charts.Adapters.Wpf/OODD.Charts.Adapters.Wpf.csproj" />
+    <Project Path="src/Adapters/OODD.Charts.Adapters.Eto/OODD.Charts.Adapters.Eto.csproj" />
+    <Project Path="src/Adapters/OODD.Charts.Adapters.Avalonia/OODD.Charts.Adapters.Avalonia.csproj" />
+    <Project Path="src/Adapters/OODD.Charts.Adapters.WinUi/OODD.Charts.Adapters.WinUi.csproj" />
+    <Project Path="src/Adapters/OODD.Charts.Adapters.Uno/OODD.Charts.Adapters.Uno.csproj" />
+    <Project Path="src/Adapters/OODD.Charts.Adapters.Maui/OODD.Charts.Adapters.Maui.csproj" />
+  </Folder>
+  <Folder Name="/demo/">
+    <Project Path="demo/OODD.Charts.Demo.Common/OODD.Charts.Demo.Common.csproj" />
+    <Project Path="demo/OODD.Charts.Demo.WinForms/OODD.Charts.Demo.WinForms.csproj" />
+    <Project Path="demo/OODD.Charts.Demo.Wpf/OODD.Charts.Demo.Wpf.csproj" />
+    <Project Path="demo/OODD.Charts.Demo.Avalonia/OODD.Charts.Demo.Avalonia.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/OODD.Charts.Samples/OODD.Charts.Samples.csproj" />
+    <Project Path="tools/OODD.Charts.AdapterCheck/OODD.Charts.AdapterCheck.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj" />
+  </Folder>
+</Solution>

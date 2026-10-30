@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>OODD.Charts.Demo.Avalonia</AssemblyName>
+    <RootNamespace>OODD.Charts.Demo.AvaloniaDemo</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <Description>Avalonia 演示程序：40 张单据（含 360°/180° 雷达）切换、贴合与缩放、导出 PNG/PDF/SVG。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.6" />
+    <ProjectReference Include="..\OODD.Charts.Demo.Common\OODD.Charts.Demo.Common.csproj" />
+    <ProjectReference Include="..\..\src\Adapters\OODD.Charts.Adapters.Avalonia\OODD.Charts.Adapters.Avalonia.csproj" />
+  </ItemGroup>
+
+</Project>

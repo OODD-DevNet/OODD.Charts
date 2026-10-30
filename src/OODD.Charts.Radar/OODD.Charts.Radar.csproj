@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts.Radar</RootNamespace>
+    <AssemblyName>OODD.Charts.Radar</AssemblyName>
+    <Description>雷达态势图（PPI）：360°/180° 盘面、量程环、方位线、扫描扇、目标与轨迹、可配置信息面板。基于 OODD.Charts.Core 引擎。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

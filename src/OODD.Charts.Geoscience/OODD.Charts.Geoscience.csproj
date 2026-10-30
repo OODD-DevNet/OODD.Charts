@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts.Geoscience</RootNamespace>
+    <AssemblyName>OODD.Charts.Geoscience</AssemblyName>
+    <Description>地学与气象表单：地面/高空天气图（站点填图 + 风杆）、T-lnP 温度对数压力图（斜交网格 + 五族线）。基于 OODD.Charts.Core 引擎。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

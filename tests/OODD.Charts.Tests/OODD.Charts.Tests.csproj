@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <AssemblyName>OODD.Charts.Tests</AssemblyName>
+    <RootNamespace>OODD.Charts.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Medical\OODD.Charts.Medical.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Radar\OODD.Charts.Radar.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Engineering\OODD.Charts.Engineering.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Transit\OODD.Charts.Transit.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Geoscience\OODD.Charts.Geoscience.csproj" />
+    <ProjectReference Include="..\..\src\OODD.Charts.Tickets\OODD.Charts.Tickets.csproj" />
+    <ProjectReference Include="..\..\demo\OODD.Charts.Demo.Common\OODD.Charts.Demo.Common.csproj" />
+  </ItemGroup>
+
+</Project>

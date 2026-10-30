@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <AssemblyName>OODD.Charts.Adapters.Eto</AssemblyName>
+    <RootNamespace>OODD.Charts.Adapters.Eto</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>Eto.Forms 宿主适配器：Raster/SKPicture 到 Eto.Drawing.Bitmap 的像素桥 + ChartControl（Drawable）。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Eto.Forms" Version="2.10.0" />
+    <ProjectReference Include="..\..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

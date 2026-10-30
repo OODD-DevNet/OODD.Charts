@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts.Engineering</RootNamespace>
+    <AssemblyName>OODD.Charts.Engineering</AssemblyName>
+    <Description>工程表单：测井成果图（多轨 + 倒置深度轴 + 图样道）、变压器油色谱大卫三角形（三角坐标 + 包线）。基于 OODD.Charts.Core 引擎。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

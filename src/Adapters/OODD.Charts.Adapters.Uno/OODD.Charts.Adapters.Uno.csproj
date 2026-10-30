@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>OODD.Charts.Adapters.Uno</AssemblyName>
+    <RootNamespace>OODD.Charts.Adapters.Uno</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>Uno Platform 宿主适配器：Raster/SKPicture 到 Uno WinUI 契约 WriteableBitmap 的像素桥 + ChartControl。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Uno.WinUI" Version="6.7.135" />
+    <ProjectReference Include="..\..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

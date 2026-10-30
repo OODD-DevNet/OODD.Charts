@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>OODD.Charts.Demo.Wpf</AssemblyName>
+    <RootNamespace>OODD.Charts.Demo.Wpf</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Description>WPF 演示程序：40 张单据（含 360°/180° 雷达）切换、贴合与缩放、导出 PNG/PDF/SVG。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Demo.Common\OODD.Charts.Demo.Common.csproj" />
+    <ProjectReference Include="..\..\src\Adapters\OODD.Charts.Adapters.Wpf\OODD.Charts.Adapters.Wpf.csproj" />
+  </ItemGroup>
+
+</Project>

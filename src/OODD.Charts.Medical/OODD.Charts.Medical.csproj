@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
+    <RootNamespace>OODD.Charts.Medical</RootNamespace>
+    <AssemblyName>OODD.Charts.Medical</AssemblyName>
+    <Description>医疗表单：三测单（体温单）、产程图、疼痛评估、保护性约束巡视、输血反应，以及 19 张专科/事件/设备/科室运营记录单。基于 OODD.Charts.Core 引擎。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OODD.Charts.Core\OODD.Charts.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1633,6 +1633,8 @@ using (FileStream svg = File.Create("radar.svg")) chart.WriteSvg(svg);
 
 字体由 `IFontResolver` 的默认实现 `SystemFontResolver` 解析，回退链是：指定字族 → 内置 CJK 候选表（雅黑/宋体/苹方/Noto/思源…）→ 用探针字 `'体'` 匹配系统字体 → `SKTypeface.Default`，任何平台都不会返回 null。PDF 这边，Skia 对能子集化的字体会按实际字形嵌入；微软雅黑这类 ttc 往往整份塞进去，本机一张表约 23.2 MB，同一张表换成 Noto Sans SC 后约 160 KB。库侧没有额外的“子集开关”，换 `Text.Family` 或嵌入字体就够了；`Chart.SharedFonts` 是进程级共享的，不要 Dispose。
 
+仓库里的截图统一用 Noto Sans SC（OFL）渲染；库本身不打包任何字体文件，候选表里的雅黑、宋体只是运行时向系统请求的字族名，不会随包分发。
+
 ## 验证到哪一步
 
 仓库里的检查不是“能打开图片”那种。下面这些命令都能在本机复跑：
@@ -1671,4 +1673,4 @@ README 里每个可独立编译的代码块都抽出来编译过：快速上手�
 
 Apache-2.0，见 [LICENSE](LICENSE)。
 
-依赖 SkiaSharp（MIT）及其原生库（BSD-3-Clause）。字体请自行确认授权。
+依赖 SkiaSharp（MIT）及其原生库（BSD-3-Clause，这是 Skia 原生二进制的许可，不是字体许可）。字体请自行确认授权。

@@ -573,7 +573,21 @@ namespace OODD.Charts.Samples
             {
                 throw new ArgumentException("未知样例: " + name);
             }
-            return sample.Create();
+
+            Chart chart = sample.Create();
+
+            // 文档截图要能随仓库分发：指定 OFL 字体重绘，别让截图落在系统商业字体上。
+            string? family = Environment.GetEnvironmentVariable("OODD_SAMPLE_FONT");
+            if (!string.IsNullOrEmpty(family))
+            {
+                ChartStyle style = chart.Style.Clone();
+                style.Text.Family = family;
+                Chart replotted = new Chart(chart.Document, chart.Template, style);
+                chart.Dispose();
+                return replotted;
+            }
+
+            return chart;
         }
 
         private static void Write(string path, byte[] bytes)

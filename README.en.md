@@ -1633,6 +1633,8 @@ using (FileStream svg = File.Create("radar.svg")) chart.WriteSvg(svg);
 
 Fonts are resolved by `SystemFontResolver`, the default `IFontResolver`: requested family → built-in CJK candidates (YaHei, SimSun, PingFang, Noto, Source Han…) → probe character `'体'` matched against system fonts → `SKTypeface.Default`, so it never returns null. For PDF, Skia subsets a typeface when it can and embeds the whole file when it cannot; Microsoft YaHei (a .ttc) produced a 23.2 MB PDF for one sheet on this machine, while the same sheet in Noto Sans SC came out at about 160 KB. There is no extra "subset switch" in the library — change `Text.Family` or embed the font. `Chart.SharedFonts` is process-wide and must not be disposed.
 
+Screenshots in this repository are rendered with Noto Sans SC (OFL). The library ships no font files; names such as YaHei or SimSun in the candidate list are only family requests to the OS at runtime.
+
 ## What is verified
 
 The checks in this repo are not "the image opens". Every command below is reproducible locally:
@@ -1671,4 +1673,4 @@ Every standalone C# block in this README was extracted and compiled: quick start
 
 Apache-2.0, see [LICENSE](LICENSE).
 
-Depends on SkiaSharp (MIT) and its native libraries (BSD-3-Clause). Check font licensing before redistribution.
+Depends on SkiaSharp (MIT) and its native libraries (BSD-3-Clause — the license of Skia's native binaries, not a font license). Check font licensing before redistribution.

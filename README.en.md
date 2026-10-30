@@ -45,7 +45,7 @@ dotnet add package OODD.Charts.Medical --version 1.0.0
 | Package | What you get |
 |---|---|
 | `OODD.Charts.Core` | Render pipeline, geometry and axes, export, font fallback, interaction contracts |
-| `OODD.Charts.Medical` | 5 hand-written forms + 19 specialty records + 5 medical extensions |
+| `OODD.Charts.Medical` | 5 hand-written templates + 16 data-driven records + 5 medical extensions (26 total) |
 | `OODD.Charts.Radar` | Radar PPI and `RadarInteraction` |
 | `OODD.Charts.Engineering` | Well log, transformer DGA |
 | `OODD.Charts.Transit` | Train graph, load sheet, stowage plan, dangerous-goods consignment, oversize permit |

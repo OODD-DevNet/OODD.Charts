@@ -45,7 +45,7 @@ dotnet add package OODD.Charts.Medical --version 1.0.0
 | 包 | 装什么 |
 |---|---|
 | `OODD.Charts.Core` | 渲染管线、几何与轴、导出、字体回退、交互契约 |
-| `OODD.Charts.Medical` | 5 张手写表单 + 19 张特殊记录单 + 5 张医疗扩展表 |
+| `OODD.Charts.Medical` | 5 张手写模板 + 16 张数据驱动记录单 + 5 张医疗扩展表（共 26 张） |
 | `OODD.Charts.Radar` | 雷达态势图与 `RadarInteraction` |
 | `OODD.Charts.Engineering` | 测井成果图、变压器油色谱 |
 | `OODD.Charts.Transit` | 列车运行图、载重平衡、积载图、危货联单、超限附图 |

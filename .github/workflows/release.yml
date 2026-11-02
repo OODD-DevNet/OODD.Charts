@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 concurrency:
   group: release-${{ inputs.tag || github.ref_name }}
@@ -96,18 +97,32 @@ jobs:
           }
           "Verified $($pkgs.Count) packages, each with README.md."
 
+      # 首选 OIDC 短期密钥：仓库变量 NUGET_USER（nuget.org 资料名）+ nuget.org 上的 Trusted Publishing 策略。
+      # 仍保留旧式 secret NUGET_API_KEY 作为兜底。
+      - name: NuGet login (OIDC → temp API key)
+        if: vars.NUGET_USER != '' && env.NUGET_API_KEY == ''
+        id: nuget_login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Push to nuget.org
-        if: env.NUGET_API_KEY != ''
+        if: vars.NUGET_USER != '' || env.NUGET_API_KEY != ''
         shell: pwsh
+        env:
+          NUGET_PUSH_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY || env.NUGET_API_KEY }}
         run: |
+          if ([string]::IsNullOrEmpty($env:NUGET_PUSH_KEY)) {
+            throw "No NuGet credential: set repository variable NUGET_USER or secret NUGET_API_KEY."
+          }
           Get-ChildItem artifacts/nuget/*.nupkg | ForEach-Object {
-            dotnet nuget push $_.FullName --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push $_.FullName --api-key $env:NUGET_PUSH_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
             if ($LASTEXITCODE -ne 0) { throw "Failed to push $($_.Name)." }
           }
 
-      - name: NuGet.org key missing
-        if: env.NUGET_API_KEY == ''
-        run: echo "::warning title=NuGet.org skipped::Repository secret NUGET_API_KEY is not set; packages are only attached to the GitHub release."
+      - name: NuGet.org push not configured
+        if: vars.NUGET_USER == '' && env.NUGET_API_KEY == ''
+        run: echo "::warning title=NuGet.org skipped::Set repository variable NUGET_USER (trusted publishing) or secret NUGET_API_KEY to enable publishing."
 
       # CD 只发布 NuGet 包；WPF 演示 zip 仍按需手工附加。
       - name: Publish GitHub release assets

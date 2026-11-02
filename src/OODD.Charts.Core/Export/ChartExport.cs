@@ -311,7 +311,9 @@ namespace OODD.Charts
         {
             using (MemoryStream buffer = new MemoryStream())
             {
-                using (SKPicture picture = chart.Record())
+                // 复杂文种在 SVG 里按轮廓输出：Skia 会把字形编号反查回 Unicode，
+                // 天城文的辅音簇会被反查成缺字（"नमस्ते" → "नमे"），而位图/PDF 不受影响。
+                using (SKPicture picture = chart.Record(1f, TextPaintMode.Outlines))
                 using (SKCanvas? canvas = SKSvgCanvas.Create(frame, buffer))
                 {
                     if (canvas == null)

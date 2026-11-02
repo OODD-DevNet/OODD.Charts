@@ -15,6 +15,8 @@ namespace OODD.Charts.Render
         private readonly SKCanvas _canvas;
         private readonly ChartStyle _style;
         private readonly IFontResolver _fonts;
+        private readonly TextShaper _textShaper;
+        private readonly TextPaintMode _textMode;
         private readonly Dictionary<string, SKPaint> _paints = new Dictionary<string, SKPaint>(StringComparer.Ordinal);
         private readonly Dictionary<FontKey, SKFont> _fontObjects = new Dictionary<FontKey, SKFont>();
         private readonly Dictionary<string, SKShader> _shaders = new Dictionary<string, SKShader>(StringComparer.Ordinal);
@@ -22,10 +24,17 @@ namespace OODD.Charts.Render
         private float _patternDeviceScale;
 
         public Painter(SKCanvas canvas, ChartStyle style, IFontResolver fonts)
+            : this(canvas, style, fonts, TextPaintMode.Text)
+        {
+        }
+
+        internal Painter(SKCanvas canvas, ChartStyle style, IFontResolver fonts, TextPaintMode textMode)
         {
             _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             _style = style ?? throw new ArgumentNullException(nameof(style));
             _fonts = fonts ?? throw new ArgumentNullException(nameof(fonts));
+            _textMode = textMode;
+            _textShaper = new TextShaper(GetFont);
         }
 
         public SKCanvas Canvas => _canvas;
@@ -114,7 +123,7 @@ namespace OODD.Charts.Render
 
         public SKFontMetrics MetricsOf(FontKey key) => GetFont(key).Metrics;
 
-        public float TextWidth(string text, FontKey key) => GetFont(key).MeasureText(text ?? string.Empty);
+        public float TextWidth(string text, FontKey key) => _textShaper.Measure(text ?? string.Empty, key);
 
         // ---------------------------------------------------------------- 图元
 
@@ -216,7 +225,7 @@ namespace OODD.Charts.Render
             {
                 return;
             }
-            _canvas.DrawText(text, x, y, GetFont(key), Fill(color));
+            _textShaper.Draw(_canvas, text, x, y, key, Fill(color), _textMode);
         }
 
         /// <summary>在矩形框内按水平/垂直对齐画单行文本。</summary>
@@ -229,17 +238,21 @@ namespace OODD.Charts.Render
             }
 
             SKFont font = GetFont(key);
-            float width = font.MeasureText(text);
+            float width = _textShaper.Measure(text, key);
             SKFontMetrics metrics = font.Metrics;
+
+            // 阿拉伯文/希伯来文以右为起始边：Near 靠右、Far 靠左，否则右对齐的表单
+            // 会把 RTL 标签顶到格子左边、右侧留一条不对称的空带。
+            bool rightToLeft = TextShaper.IsRightToLeft(text);
 
             float x;
             if (horizontal == CellAlign.Near)
             {
-                x = box.Left + padding;
+                x = rightToLeft ? box.Right - padding - width : box.Left + padding;
             }
             else if (horizontal == CellAlign.Far)
             {
-                x = box.Right - padding - width;
+                x = rightToLeft ? box.Left + padding : box.Right - padding - width;
             }
             else
             {
@@ -260,7 +273,7 @@ namespace OODD.Charts.Render
                 baseline = box.MidY - (metrics.Ascent + metrics.Descent) / 2f;
             }
 
-            _canvas.DrawText(text, x, baseline, font, Fill(color));
+            _textShaper.Draw(_canvas, text, x, baseline, key, Fill(color), _textMode);
         }
 
         /// <summary>
@@ -568,6 +581,8 @@ namespace OODD.Charts.Render
                 paint.Dispose();
             }
             _paints.Clear();
+            // 整形器持有回退字体、HarfBuzz 面与 SKTextBlob，必须先于画师的字体缓存释放。
+            _textShaper.Dispose();
             foreach (SKFont font in _fontObjects.Values)
             {
                 font.Dispose();

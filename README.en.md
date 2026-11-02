@@ -6,7 +6,7 @@ SkiaSharp renderer for the kind of form that has to line up cell by cell: temper
 
 The approach here is to treat the layout as geometry. Each form gets a document model plus a template; the layout is solved once in 96 dpi logical units, and PNG / JPEG / PDF / SVG all come out of the same `SKPicture`. A 300 dpi export is just a `canvas.Scale`, so grid lines do not drift. The control layer is thin: WinForms, WPF and Avalonia can host a chart directly, and the radar supports click selection, hover and sweep animation out of the box.
 
-Today: 40 forms, 14 NuGet packages, 7 host adapters. 473 tests run on both net8.0 and net462, and the 40 samples are rendered and checked against their layout geometry — "it renders" does not count as a pass.
+Today: 40 forms, 14 NuGet packages, 7 host adapters. 483 tests run on both net8.0 and net462, and the 40 samples are rendered and checked against their layout geometry — "it renders" does not count as a pass.
 
 | Temperature chart | Partogram |
 |---|---|
@@ -24,6 +24,7 @@ Today: 40 forms, 14 NuGet packages, 7 host adapters. 473 tests run on both net8.
 
 - [Install](#install)
 - [Quick start](#quick-start)
+- [Complex scripts](#complex-scripts)
 - [Medical forms](#medical-forms) (21)
 - [Industry forms](#industry-forms) (17)
 - [Radar, engines and host controls](#radar-engines-and-host-controls)
@@ -39,7 +40,7 @@ Packages ship with [Releases](https://github.com/OODD-DevNet/OODD.Charts/release
 mkdir packages && cd packages
 # put the downloaded nupkg files here, then:
 dotnet nuget add source . -n oodd-local
-dotnet add package OODD.Charts.Medical --version 1.0.0
+dotnet add package OODD.Charts.Medical --version 1.1.0
 ```
 
 | Package | What you get |
@@ -59,7 +60,7 @@ dotnet add package OODD.Charts.Medical --version 1.0.0
 | `OODD.Charts.Adapters.Uno` | Uno Platform `ChartControl` + `ToWriteableBitmap` |
 | `OODD.Charts.Adapters.Maui` | MAUI `ChartImage` / `ChartCanvasView` + `ToImageSource` |
 
-Core targets `net462;netstandard2.0;net8.0`. Adapters narrow to their host (WinForms/WPF are `net462;net8.0-windows`). SkiaSharp native assets come in through NuGet; on Linux you also need `libfontconfig1`.
+Core targets `net462;netstandard2.0;net8.0`. Adapters narrow to their host (WinForms/WPF are `net462;net8.0-windows`). SkiaSharp native assets come in through NuGet; on Linux you also need `libfontconfig1`. Complex scripts additionally need HarfBuzz's native library — see [Complex scripts](#complex-scripts).
 
 ## Quick start
 
@@ -104,9 +105,44 @@ using (FileStream fs = File.Create("temperature.svg")) chart.WriteSvg(fs);
 
 Document and template are decoupled: you can swap the template and redraw the same document, and templates hold no business state. A new form is one `IChartTemplate` implementation; the engine stays untouched.
 
+## Complex scripts
+
+Arabic, Hebrew, Devanagari (Hindi, Nepali and friends), Bengali, Thai, Tibetan and Burmese do not map one codepoint to one glyph: Arabic letters join according to their position in a word, Devanagari fuses consonant clusters into a single glyph, Thai stacks marks above and below the base. Skia only maps codepoints to glyphs, so drawing directly gives a row of isolated Arabic letters and tears "नमस्ते" apart. That part goes through HarfBuzzSharp for OpenType shaping; templates and documents stay untouched:
+
+```csharp
+using System;
+using System.IO;
+using OODD.Charts;
+using OODD.Charts.Medical.Temperature;
+using OODD.Charts.Model;
+using SkiaSharp;
+
+TemperatureChartDocument doc = new TemperatureChartDocument
+{
+    HospitalName = "示例医院",
+    FormTitle = "درجة الحرارة",      // the form title can be Arabic too
+};
+doc.Patient.Name = "محمد";          // Near/Far are interpreted right-to-left
+doc.Patient.Age = "٣٦";
+doc.Days.Add(new ChartGroup(new DateTime(2026, 10, 30)));
+
+using Chart chart = new Chart(doc, new TemperatureChartTemplate());
+using (FileStream fs = File.Create("temperature-ar.png")) chart.WritePng(fs, 96f);
+```
+
+At runtime three things happen:
+
+- **Shaping per script run.** At 24 px, joined Arabic "مرحبا" measures 52.1 px, against 66.1 px when each letter is placed on its own; the "नमस्ते" cluster comes out as 4 glyphs measuring 55.5 px (62.7 px unshaped). Latin, Chinese, Greek and Cyrillic skip this path entirely — their widths and ink are bit-identical to 1.0.
+- **Per-script font fallback.** `SystemFontResolver` still owns the base family; when that family has no codepoints for the script (Microsoft YaHei asked to set Arabic, for instance) a per-script candidate list (Segoe UI / Arial / Tahoma / Noto Naskh Arabic… for Arabic, Nirmala UI / Mangal / Noto Sans Devanagari… for Devanagari) is tried, then `SKFontManager.MatchCharacter`, so nothing turns into tofu.
+- **Sense of direction.** For RTL text `CellAlign.Near` is the starting edge (right) and `Far` the ending edge (left); digits embedded in Arabic form their own LTR runs, so "مرحبا 123" is not drawn as "321".
+
+SVG export draws complex-script runs as glyph outlines: Skia's SVG serializer reverse-maps glyph IDs to Unicode, and Devanagari clusters come back as missing characters (measured: "नमस्ते" becomes "नमे"), so those runs become `<path>` — the vector outline matches the bitmap, but the text is not searchable; Latin and Chinese stay `<text>`. PNG / JPEG / PDF look the same either way.
+
+On Linux you need two things: system fonts (`fonts-noto-arabic`, `fonts-noto-devanagari`, …) and HarfBuzz's native library `HarfBuzzSharp.NativeAssets.Linux` (referenced explicitly by the app, exactly like `SkiaSharp.NativeAssets.Linux`). The library itself bundles no font files.
+
 ## Demo
 
-A self-contained WPF demo is attached to each release (`OODD.Charts.Demo.Wpf-1.0.0-win-x64.zip`; unzip and run, no .NET install needed). It switches through all 40 forms, fits to window or shows actual size, and exports PNG at 300 dpi, PDF and SVG.
+A self-contained WPF demo is attached to each release (`OODD.Charts.Demo.Wpf-1.1.0-win-x64.zip`; unzip and run, no .NET install needed). It switches through all 40 forms, fits to window or shows actual size, and exports PNG at 300 dpi, PDF and SVG.
 
 The three demos in the repo run as-is:
 
@@ -1651,13 +1687,14 @@ dotnet run --project tools/OODD.Charts.AdapterCheck -f net8.0-windows
 | Check | Current measured result |
 |---|---|
 | Build | 0 warnings / 0 errors across net462, netstandard2.0 and net8.0 |
-| Tests | **473/473** on net8.0 and 473/473 on net462 |
+| Tests | **483/483** on net8.0 and 483/483 on net462 |
+| Complex scripts | 10 checks: shaped width reconciled against an independently computed HarfBuzz pass (plain per-glyph placement as the negative control), script fallback for Arabic in a Chinese font, RTL Near/Far, digits not reversed inside RTL, SVG outlines; clearing the script table turns 6 red, removing the digit split turns 2 red |
 | Samples | `ALL SAMPLES OK`: all 40 forms assert cell height, rule weight, shared baselines, slot width, then write PNG/PDF/SVG |
 | Forensics | `ALL FORENSICS OK`: 17 extended forms × 96/120/144/192 dpi |
 | Adapters | WinForms / WPF / Avalonia produce **byte-identical** output to the core raster; 7 control-level mouse-message checks pass |
 | Cross-TFM | The same document produces identical PNG bytes on net462 and net8.0 |
 
-Every standalone C# block in this README was extracted and compiled: quick start, 38 form snippets, radar and engine examples — 45 in total. The seven host-control snippets depend on their platform TFMs and are not part of that compile.
+Every standalone C# block in this README was extracted and compiled: quick start, complex scripts, 38 form snippets, radar and engine examples — 46 in total. The seven host-control snippets depend on their platform TFMs and are not part of that compile.
 
 ## Known limitations
 
@@ -1667,10 +1704,11 @@ Every standalone C# block in this README was extracted and compiled: quick start
 - **No CMYK separation or print tolerance.** SkiaSharp is an RGB pipeline; spot colours keep their original CMYK values plus an RGB approximation. Prepress still needs dedicated software.
 - **The 17 extended forms are not pixel-calibrated against national standards.** 3 have source evidence, 12 are structurally verified but uncalibrated, 2 are structure-only. Tune the exposed tokens against your own sample before using them as official documents.
 - **Interaction exists only for the radar** (click, hover, sweep). Other forms expose geometry and inverse mapping primitives but no per-form `HitTest`; in-cell editing belongs to the application.
+- **Complex scripts are handled at run level, not full bidi.** Runs are split by strong-direction script, digits stay LTR, RTL runs are reversed as a whole; full UAX#9 (mirroring brackets and quotes, nested embeddings) is not implemented. Chinese/Latin mixed text and pure RTL text are unaffected; for deeply nested multilingual layouts, split the text into separate labels first.
 - `TemperatureChart/` holds a GDI+ reference implementation found online. It is used only for early layout measurements, is not compiled, and is not published with this repository.
 
 ## License
 
 Apache-2.0, see [LICENSE](LICENSE).
 
-Depends on SkiaSharp (MIT) and its native libraries (BSD-3-Clause — the license of Skia's native binaries, not a font license). Check font licensing before redistribution.
+Depends on SkiaSharp (MIT), HarfBuzzSharp (MIT, complex-script shaping) and their native libraries (BSD-3-Clause — the license of Skia's native binaries, not a font license). Check font licensing before redistribution.

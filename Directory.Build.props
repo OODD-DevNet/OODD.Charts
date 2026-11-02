@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
 
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>OODD</Authors>
     <Product>OODD.Charts</Product>
     <Copyright>Copyright (c) OODD</Copyright>
@@ -20,6 +20,7 @@
     <PackageReadmeFile Condition="Exists('$(MSBuildThisFileDirectory)docs/nuget-readme.md')">README.md</PackageReadmeFile>
 
     <SkiaSharpVersion>3.116.1</SkiaSharpVersion>
+    <HarfBuzzSharpVersion>8.3.1.5</HarfBuzzSharpVersion>
 
     <!-- 最低公分母矩阵，见 docs/02-设计文档.md §9.1 -->
     <PortableTFMs>net462;netstandard2.0;net8.0</PortableTFMs>

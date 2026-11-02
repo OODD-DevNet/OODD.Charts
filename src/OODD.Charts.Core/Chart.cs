@@ -120,13 +120,18 @@ namespace OODD.Charts
         /// </summary>
         internal SKPicture Record(float patternDeviceScale)
         {
+            return Record(patternDeviceScale, TextPaintMode.Text);
+        }
+
+        internal SKPicture Record(float patternDeviceScale, TextPaintMode textMode)
+        {
             ThrowIfDisposed();
             ChartGeometry geometry = Geometry;
 
             using (SKPictureRecorder recorder = new SKPictureRecorder())
             {
                 SKCanvas canvas = recorder.BeginRecording(geometry.Bounds);
-                using (Painter painter = new Painter(canvas, _style, _fonts))
+                using (Painter painter = new Painter(canvas, _style, _fonts, textMode))
                 {
                     painter.SetPatternDeviceScale(patternDeviceScale);
                     _template.DrawContent(painter, geometry, _document);

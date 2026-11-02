@@ -6,7 +6,7 @@
 
 这里的做法是把版面当几何来解：每张单子一个文档模型加一个模板，在 96dpi 逻辑坐标里算一次，PNG / JPEG / PDF / SVG 都从同一份 `SKPicture` 出来；300dpi 只做 `canvas.Scale`，格线不会漂。控件层很薄，WinForms / WPF / Avalonia 拿到就能显示，雷达还能直接点选、悬停、扫描动画。
 
-目前是 40 张单据、14 个 NuGet 包、7 个宿主适配器。473 项测试在 net8.0 与 net462 上各跑一遍；40 张样例逐张出图并断言版面几何，“能渲染”不算通过。
+目前是 40 张单据、14 个 NuGet 包、7 个宿主适配器。483 项测试在 net8.0 与 net462 上各跑一遍；40 张样例逐张出图并断言版面几何，“能渲染”不算通过。
 
 | 三测单 | 产程图 |
 |---|---|
@@ -24,6 +24,7 @@
 
 - [安装](#安装)
 - [快速上手](#快速上手)
+- [复杂文种](#复杂文种)
 - [医疗表单](#医疗表单)（21 张）
 - [行业扩展表单](#行业扩展表单)（17 张）
 - [雷达、引擎与宿主控件](#雷达引擎与宿主控件)
@@ -39,7 +40,7 @@
 mkdir packages && cd packages
 # 从 Release 页面下载 nupkg 到这里，然后：
 dotnet nuget add source . -n oodd-local
-dotnet add package OODD.Charts.Medical --version 1.0.0
+dotnet add package OODD.Charts.Medical --version 1.1.0
 ```
 
 | 包 | 装什么 |
@@ -59,7 +60,7 @@ dotnet add package OODD.Charts.Medical --version 1.0.0
 | `OODD.Charts.Adapters.Uno` | Uno Platform `ChartControl` + `ToWriteableBitmap` |
 | `OODD.Charts.Adapters.Maui` | MAUI `ChartImage` / `ChartCanvasView` + `ToImageSource` |
 
-核心包的目标框架是 `net462;netstandard2.0;net8.0`，适配器按宿主收窄（例如 WinForms/WPF 是 `net462;net8.0-windows`）。SkiaSharp 的原生库由 NuGet 自动带；Linux 上额外需要 `libfontconfig1`。
+核心包的目标框架是 `net462;netstandard2.0;net8.0`，适配器按宿主收窄（例如 WinForms/WPF 是 `net462;net8.0-windows`）。SkiaSharp 的原生库由 NuGet 自动带；Linux 上额外需要 `libfontconfig1`。排复杂文种还要 HarfBuzz 的原生库，见[复杂文种](#复杂文种)。
 
 ## 快速上手
 
@@ -104,9 +105,44 @@ using (FileStream fs = File.Create("temperature.svg")) chart.WriteSvg(fs);
 
 文档与模板是解耦的：同一份文档可以随时换模板重绘，模板也不持有业务状态。要新增一张单据，实现一个 `IChartTemplate` 就行，引擎不用改。
 
+## 复杂文种
+
+阿拉伯文、希伯来文、天城文（印地文、尼泊尔文等）、孟加拉文、泰文、藏文、缅甸文这些文字不是“一个码位一个字形”：阿拉伯文要按词内位置连写，天城文要把辅音簇合成一个字形，泰文要把上下标叠回基字。Skia 自己只做码位到字形的直映射，直接画会把阿拉伯文画成一排孤立字母、把 “नमस्ते” 的辅音簇拆散。这部分交给 HarfBuzzSharp 做 OpenType 整形，模板和文档都不用改：
+
+```csharp
+using System;
+using System.IO;
+using OODD.Charts;
+using OODD.Charts.Medical.Temperature;
+using OODD.Charts.Model;
+using SkiaSharp;
+
+TemperatureChartDocument doc = new TemperatureChartDocument
+{
+    HospitalName = "示例医院",
+    FormTitle = "درجة الحرارة",      // 表单标题也可以是阿拉伯文
+};
+doc.Patient.Name = "محمد";          // Near/Far 会自动按从右到左解释
+doc.Patient.Age = "٣٦";
+doc.Days.Add(new ChartGroup(new DateTime(2026, 10, 30)));
+
+using Chart chart = new Chart(doc, new TemperatureChartTemplate());
+using (FileStream fs = File.Create("temperature-ar.png")) chart.WritePng(fs, 96f);
+```
+
+运行时做三件事：
+
+- **按脚本切段整形**。同一字体下，“مرحبا” 24px 连写后量宽 52.1px，逐字直排是 66.1px；“नमस्ते” 的辅音簇合成 4 个字形、量宽 55.5px（直排 62.7px）。拉丁文、中文、希腊文、西里尔文不走这条路，量宽与落墨和 1.0 逐位一致。
+- **缺字自动换字体**。`SystemFontResolver` 只管基础字族；基础字体没有该文种码位时（比如用微软雅黑排阿拉伯文），按脚本候选表（阿拉伯文 Segoe UI / Arial / Tahoma / Noto Naskh Arabic…，天城文 Nirmala UI / Mangal / Noto Sans Devanagari…）再走 `SKFontManager.MatchCharacter`，不会落成豆腐块。
+- **方向感**。RTL 文本的 `CellAlign.Near` 是起始边（右缘），`Far` 是结束边（左缘）；夹在阿拉伯文里的数字单独成 LTR 段，“مرحبا 123” 不会画成 “321”。
+
+SVG 导出对复杂文种改画字形轮廓：Skia 的 SVG 序列化要把字形编号反查回 Unicode，天城文的辅音簇会被反查成缺字（实测 “नमस्ते” 变成 “नमे”），所以这些段落输出 `<path>`，矢量外观与位图一致，但文字不可检索；拉丁文和中文仍是 `<text>`。PNG / JPEG / PDF 的视觉不受影响。
+
+Linux 上要两样东西：系统字体（如 `fonts-noto-arabic`、`fonts-noto-devanagari`）和 HarfBuzz 原生库 `HarfBuzzSharp.NativeAssets.Linux`（和 `SkiaSharp.NativeAssets.Linux` 一样，由应用显式引用）。库本身不打包任何字体文件。
+
 ## 演示程序
 
-Release 里附了一个自包含的 WPF 演示（`OODD.Charts.Demo.Wpf-1.0.0-win-x64.zip`，解压双击 exe，不需要装 .NET）。下拉框能切全部 40 张单据，支持贴合窗口 / 原尺寸缩放，导出 PNG(300dpi) / PDF / SVG。
+Release 里附了一个自包含的 WPF 演示（`OODD.Charts.Demo.Wpf-1.1.0-win-x64.zip`，解压双击 exe，不需要装 .NET）。下拉框能切全部 40 张单据，支持贴合窗口 / 原尺寸缩放，导出 PNG(300dpi) / PDF / SVG。
 
 源码里的三个演示都能直接跑：
 
@@ -1651,13 +1687,14 @@ dotnet run --project tools/OODD.Charts.AdapterCheck -f net8.0-windows
 | 检查 | 现在的实测结果 |
 |---|---|
 | 编译 | 0 warning / 0 error（net462 / netstandard2.0 / net8.0 三目标） |
-| 测试 | net8.0 与 net462 各 **473/473** |
+| 测试 | net8.0 与 net462 各 **483/483** |
+| 复杂文种 | 10 项：量宽与测试自算的 HarfBuzz 整形对账（同一段文字逐字直排作负对照）、中文字体排阿拉伯文的脚本回退、RTL 的 Near/Far、RTL 里数字不反向、SVG 轮廓化；清空脚本表后 6 项转红，关掉数字切段后 2 项转红 |
 | 样例 | `ALL SAMPLES OK`：40 张逐张断言格高、线宽、共线、槽宽等版面几何，再落盘 PNG/PDF/SVG |
 | 取证 | `ALL FORENSICS OK`：17 张扩展表 × 96/120/144/192 dpi |
 | 适配器 | WinForms / WPF / Avalonia 与内核基准 PNG **逐字节 0 差异**；控件级鼠标消息链路 7 项通过 |
 | 跨 TFM | 同一文档在 net462 与 net8.0 的 PNG 字节完全一致 |
 
-README 里每个可独立编译的代码块都抽出来编译过：快速上手、38 张表单、雷达与引擎示例，共 45 段；七个平台的宿主片段依赖各自 TFM，没并入这次编译。
+README 里每个可独立编译的代码块都抽出来编译过：快速上手、复杂文种、38 张表单、雷达与引擎示例，共 46 段；七个平台的宿主片段依赖各自 TFM，没并入这次编译。
 
 ## 已知限制
 
@@ -1667,10 +1704,11 @@ README 里每个可独立编译的代码块都抽出来编译过：快速上手�
 - **不做 CMYK 分色和打印公差**。SkiaSharp 是 RGB 管线，专色只保留原始 CMYK 值加 RGB 近似；印厂环节仍需专业软件。
 - **17 张扩展表不是逐张对齐国标**：3 张有标准原文取证，12 张结构已验、版面未校准，2 张只有结构断言。拿去做正式票据前请按自己的样本调令牌。
 - **交互目前只有雷达**（点选、悬停、扫描动画）。其他表单提供几何与逆算原语，但没有逐表的 `HitTest`，格子内就地编辑属于业务系统。
+- **复杂文种只做段级双向处理**：按强方向脚本分段、数字保持 LTR、RTL 段整体反转；没有实现完整的 UAX#9（括号/引号镜像、多层嵌套嵌入）。中英混排或单一 RTL 文本不受影响；多语言深度嵌套的版面请先把文本拆成独立的标签。
 - `TemperatureChart/` 目录里是网上找的 GDI+ 参考实现，只用于早期版面实测，不参与编译，也不随仓库发布。
 
 ## 许可
 
 Apache-2.0，见 [LICENSE](LICENSE)。
 
-依赖 SkiaSharp（MIT）及其原生库（BSD-3-Clause，这是 Skia 原生二进制的许可，不是字体许可）。字体请自行确认授权。
+依赖 SkiaSharp（MIT）、HarfBuzzSharp（MIT，复杂文种整形）及其原生库（BSD-3-Clause，这是 Skia 原生二进制的许可，不是字体许可）。字体请自行确认授权。

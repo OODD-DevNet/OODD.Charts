@@ -301,12 +301,23 @@ namespace OODD.Charts.Render
 
         // ------------------------------------------------------------ 页眉字段栏
 
-        /// <summary>不建 Painter 时量文本宽，必须与 <see cref="Painter.TextWidth"/> 走同一套字体构造。</summary>
+        /// <summary>不建 Painter 时量文本宽，必须与 <see cref="Painter.TextWidth"/> 走同一套字体构造与整形。</summary>
         public static float MeasureText(IFontResolver fonts, string text, FontKey key)
         {
-            using (SKFont font = new SKFont(fonts.Resolve(key), key.Size))
+            if (string.IsNullOrEmpty(text))
             {
-                return font.MeasureText(text ?? string.Empty);
+                return 0f;
+            }
+            if (!TextShaper.NeedsShaping(text))
+            {
+                using (SKFont font = new SKFont(fonts.Resolve(key), key.Size))
+                {
+                    return font.MeasureText(text);
+                }
+            }
+            using (TextShaper shaper = new TextShaper(fonts))
+            {
+                return shaper.Measure(text, key);
             }
         }
 

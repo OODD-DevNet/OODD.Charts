@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using HarfBuzzSharp;
 using SkiaSharp;
@@ -703,16 +703,14 @@ namespace OODD.Charts.Render
             }
         }
 
-        /// <summary>一个 <see cref="SKFont"/> 对应的 HarfBuzz 面与字体；字体流要活到面释放为止。</summary>
+        /// <summary>一个 <see cref="SKFont"/> 对应的 HarfBuzz 面与字体。</summary>
         private sealed class ShapedFont : IDisposable
         {
-            private readonly MemoryStream _stream;
             private readonly Blob _blob;
             private readonly Face _face;
 
-            private ShapedFont(MemoryStream stream, Blob blob, Face face, HbFont font)
+            private ShapedFont(Blob blob, Face face, HbFont font)
             {
-                _stream = stream;
                 _blob = blob;
                 _face = face;
                 Font = font;
@@ -736,15 +734,45 @@ namespace OODD.Charts.Render
                     }
 
                     byte[] data = new byte[length];
-                    stream.Read(data, (int)length);
+                    if (stream.Read(data, data.Length) != data.Length)
+                    {
+                        return null;
+                    }
 
-                    MemoryStream memory = new MemoryStream(data, false);
-                    Blob blob = Blob.FromStream(memory);
-                    Face face = new Face(blob, index);
-                    HbFont hbFont = new HbFont(face);
-                    int scale = (int)Math.Round(font.Size * 64.0);
-                    hbFont.SetScale(scale, scale);
-                    return new ShapedFont(memory, blob, face, hbFont);
+                    // 不能用 HarfBuzzSharp.Blob.FromStream：它只在自己的方法里把临时数组 fixed 住，
+                    // 返回后 hb_blob_create 仍引用那个裸指针；数组一旦被 GC 移动，hb_shape_full 会访问冲突
+                    // （.NET Framework 上实测 0xC0000005）。这里自己持有非托管内存，并让 HarfBuzz 复制一份。
+                    IntPtr native = Marshal.AllocHGlobal(data.Length);
+                    Blob? blob = null;
+                    Face? face = null;
+                    HbFont? hbFont = null;
+                    try
+                    {
+                        Marshal.Copy(data, 0, native, data.Length);
+                        blob = new Blob(native, data.Length, MemoryMode.Duplicate);
+                        Marshal.FreeHGlobal(native);
+                        native = IntPtr.Zero;
+
+                        face = new Face(blob, index);
+                        hbFont = new HbFont(face);
+                        int scale = (int)Math.Round(font.Size * 64.0);
+                        hbFont.SetScale(scale, scale);
+                        return new ShapedFont(blob, face, hbFont);
+                    }
+                    catch
+                    {
+                        hbFont?.Dispose();
+                        face?.Dispose();
+                        blob?.Dispose();
+                        throw;
+                    }
+                    finally
+                    {
+                        if (native != IntPtr.Zero)
+                        {
+                            Marshal.FreeHGlobal(native);
+                        }
+                    }
                 }
             }
 
@@ -753,7 +781,6 @@ namespace OODD.Charts.Render
                 Font.Dispose();
                 _face.Dispose();
                 _blob.Dispose();
-                _stream.Dispose();
             }
         }
     }

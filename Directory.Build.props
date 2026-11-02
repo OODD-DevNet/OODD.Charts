@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
 
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Authors>OODD</Authors>
     <Product>OODD.Charts</Product>
     <Copyright>Copyright (c) OODD</Copyright>

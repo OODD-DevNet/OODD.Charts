@@ -40,7 +40,7 @@
 mkdir packages && cd packages
 # 从 Release 页面下载 nupkg 到这里，然后：
 dotnet nuget add source . -n oodd-local
-dotnet add package OODD.Charts.Medical --version 1.1.1
+dotnet add package OODD.Charts.Medical --version 1.1.2
 ```
 
 | 包 | 装什么 |

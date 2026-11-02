@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using OODD.Charts.Fonts;
@@ -398,10 +398,26 @@ namespace OODD.Charts.Tests
                 }
 
                 byte[] data = new byte[checked((int)stream.Length)];
-                stream.Read(data, data.Length);
+                if (stream.Read(data, data.Length) != data.Length)
+                {
+                    throw new InvalidOperationException("字体流读不完整：" + typeface.FamilyName);
+                }
 
-                using (MemoryStream memory = new MemoryStream(data, false))
-                using (HarfBuzzSharp.Blob blob = HarfBuzzSharp.Blob.FromStream(memory))
+                // 不用 HarfBuzzSharp.Blob.FromStream：它把临时数组 fixed 在自己的方法里，
+                // 返回后底层指针仍被 hb_blob_create 引用，GC 移动数组会让 hb_shape_full 崩溃。
+                IntPtr native = Marshal.AllocHGlobal(data.Length);
+                HarfBuzzSharp.Blob blob;
+                try
+                {
+                    Marshal.Copy(data, 0, native, data.Length);
+                    blob = new HarfBuzzSharp.Blob(native, data.Length, HarfBuzzSharp.MemoryMode.Duplicate);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(native);
+                }
+
+                using (blob)
                 using (HarfBuzzSharp.Face face = new HarfBuzzSharp.Face(blob, index))
                 using (HbFont font = new HbFont(face))
                 using (HbBuffer buffer = new HbBuffer())

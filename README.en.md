@@ -40,7 +40,7 @@ Packages ship with [Releases](https://github.com/OODD-DevNet/OODD.Charts/release
 mkdir packages && cd packages
 # put the downloaded nupkg files here, then:
 dotnet nuget add source . -n oodd-local
-dotnet add package OODD.Charts.Medical --version 1.1.1
+dotnet add package OODD.Charts.Medical --version 1.1.2
 ```
 
 | Package | What you get |

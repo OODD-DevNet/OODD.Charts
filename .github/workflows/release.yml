@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "已存在的 tag（例如 v1.1.0）"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Check tag against package version
+        shell: pwsh
+        run: |
+          [xml]$props = Get-Content -Raw Directory.Build.props
+          $version = $props.Project.PropertyGroup.Version
+          $tag = '${{ inputs.tag || github.ref_name }}'
+          if ($tag -ne "v$version") {
+            throw "Tag '$tag' does not match Directory.Build.props version 'v$version'."
+          }
+          "VERSION=$version" | Add-Content -Path $env:GITHUB_ENV -Encoding ascii
+
+      - name: Restore
+        run: dotnet restore OODD.Charts.slnx
+
+      - name: Build
+        run: dotnet build OODD.Charts.slnx -c Release --no-restore
+
+      - name: Test (net8.0)
+        run: dotnet test tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj -c Release -f net8.0 --no-build
+
+      - name: Test (net462)
+        run: dotnet test tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj -c Release -f net462 --no-build
+
+      - name: Pack
+        run: dotnet pack OODD.Charts.slnx -c Release -o artifacts/nuget
+
+      - name: Push to nuget.org
+        if: env.NUGET_API_KEY != ''
+        shell: pwsh
+        run: |
+          Get-ChildItem artifacts/nuget/*.nupkg | ForEach-Object {
+            dotnet nuget push $_.FullName --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "Failed to push $($_.Name)." }
+          }
+
+      - name: NuGet.org key missing
+        if: env.NUGET_API_KEY == ''
+        run: echo "::warning title=NuGet.org skipped::Repository secret NUGET_API_KEY is not set; packages are only attached to the GitHub release."
+
+      # CD 只发布 NuGet 包；WPF 演示 zip 仍按需手工附加。
+      - name: Publish GitHub release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ inputs.tag || github.ref_name }}'
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag artifacts/nuget/*.nupkg --title "OODD.Charts $env:VERSION" --generate-notes --verify-tag
+          } else {
+            gh release upload $tag artifacts/nuget/*.nupkg --clobber
+          }
+          if ($LASTEXITCODE -ne 0) { throw "Failed to publish release assets for $tag." }

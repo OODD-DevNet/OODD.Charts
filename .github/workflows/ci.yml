@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      # MAUI 适配器的 net10.0-android / -ios / -maccatalyst 目标需要对应 workload。
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore OODD.Charts.slnx
+
+      - name: Build
+        run: dotnet build OODD.Charts.slnx -c Release --no-restore
+
+      - name: Test (net8.0)
+        run: dotnet test tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj -c Release -f net8.0 --no-build
+
+      - name: Test (net462)
+        run: dotnet test tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj -c Release -f net462 --no-build
+
+      # Uno 的 pack 不支持 --no-build，这里完整打一遍，同时验证打包元数据。
+      - name: Pack
+        run: dotnet pack OODD.Charts.slnx -c Release -o artifacts/nuget
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-preview
+          path: artifacts/nuget/*.nupkg
+          if-no-files-found: error
+          retention-days: 7

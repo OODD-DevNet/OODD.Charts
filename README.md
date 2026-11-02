@@ -40,7 +40,7 @@
 mkdir packages && cd packages
 # 从 Release 页面下载 nupkg 到这里，然后：
 dotnet nuget add source . -n oodd-local
-dotnet add package OODD.Charts.Medical --version 1.1.0
+dotnet add package OODD.Charts.Medical --version 1.1.1
 ```
 
 | 包 | 装什么 |
@@ -142,7 +142,7 @@ Linux 上要两样东西：系统字体（如 `fonts-noto-arabic`、`fonts-noto-
 
 ## 演示程序
 
-Release 里附了一个自包含的 WPF 演示（`OODD.Charts.Demo.Wpf-1.1.0-win-x64.zip`，解压双击 exe，不需要装 .NET）。下拉框能切全部 40 张单据，支持贴合窗口 / 原尺寸缩放，导出 PNG(300dpi) / PDF / SVG。
+WPF 演示打包在 v1.1.0 Release 里（`OODD.Charts.Demo.Wpf-1.1.0-win-x64.zip`，解压双击 exe，不需要装 .NET）。下拉框能切全部 40 张单据，支持贴合窗口 / 原尺寸缩放，导出 PNG(300dpi) / PDF / SVG。自动发布只附 NuGet 包，演示程序按需单独打包。
 
 源码里的三个演示都能直接跑：
 

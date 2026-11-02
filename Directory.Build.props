@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
 
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>OODD</Authors>
     <Product>OODD.Charts</Product>
     <Copyright>Copyright (c) OODD</Copyright>
@@ -17,7 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/OODD-DevNet/OODD.Charts</PackageProjectUrl>
     <PackageTags>skia;charts;forms;pdf;svg;cross-platform;medical;radar</PackageTags>
-    <PackageReadmeFile Condition="Exists('$(MSBuildThisFileDirectory)docs/nuget-readme.md')">README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <SkiaSharpVersion>3.116.1</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.5</HarfBuzzSharpVersion>
@@ -31,8 +31,8 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(IsPackable)' != 'false' And Exists('$(MSBuildThisFileDirectory)docs/nuget-readme.md') ">
-    <None Include="$(MSBuildThisFileDirectory)docs/nuget-readme.md" Pack="true" PackagePath="README.md" Visible="false" />
+  <ItemGroup Condition=" '$(IsPackable)' != 'false' ">
+    <None Include="$(MSBuildThisFileDirectory)packaging/nuget-readme.md" Pack="true" PackagePath="README.md" Visible="false" />
   </ItemGroup>
 
 </Project>

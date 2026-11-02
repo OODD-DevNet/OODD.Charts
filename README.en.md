@@ -40,7 +40,7 @@ Packages ship with [Releases](https://github.com/OODD-DevNet/OODD.Charts/release
 mkdir packages && cd packages
 # put the downloaded nupkg files here, then:
 dotnet nuget add source . -n oodd-local
-dotnet add package OODD.Charts.Medical --version 1.1.0
+dotnet add package OODD.Charts.Medical --version 1.1.1
 ```
 
 | Package | What you get |
@@ -142,7 +142,7 @@ On Linux you need two things: system fonts (`fonts-noto-arabic`, `fonts-noto-dev
 
 ## Demo
 
-A self-contained WPF demo is attached to each release (`OODD.Charts.Demo.Wpf-1.1.0-win-x64.zip`; unzip and run, no .NET install needed). It switches through all 40 forms, fits to window or shows actual size, and exports PNG at 300 dpi, PDF and SVG.
+A self-contained WPF demo ships with the v1.1.0 release (`OODD.Charts.Demo.Wpf-1.1.0-win-x64.zip`; unzip and run, no .NET install needed). It switches through all 40 forms, fits to window or shows actual size, and exports PNG at 300 dpi, PDF and SVG. Automated releases carry NuGet packages only; the demo is packaged separately when needed.
 
 The three demos in the repo run as-is:
 

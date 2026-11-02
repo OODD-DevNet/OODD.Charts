@@ -64,6 +64,22 @@ jobs:
       - name: Pack
         run: dotnet pack OODD.Charts.slnx -c Release -o artifacts/nuget
 
+      # 包必须自带 README；缺文件时 pack 仍会成功，所以在这里拦。
+      - name: Verify package payload
+        shell: pwsh
+        run: |
+          $pkgs = @(Get-ChildItem artifacts/nuget/*.nupkg)
+          if ($pkgs.Count -ne 14) { throw "Expected 14 packages, found $($pkgs.Count)." }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          foreach ($p in $pkgs) {
+            $zip = [System.IO.Compression.ZipFile]::OpenRead($p.FullName)
+            try {
+              $hasReadme = [bool]($zip.Entries | Where-Object { $_.FullName -eq 'README.md' })
+            } finally { $zip.Dispose() }
+            if (-not $hasReadme) { throw "Package $($p.Name) is missing README.md." }
+          }
+          "Verified $($pkgs.Count) packages, each with README.md."
+
       - uses: actions/upload-artifact@v4
         with:
           name: nuget-preview

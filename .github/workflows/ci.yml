@@ -41,6 +41,19 @@ jobs:
       - name: Build
         run: dotnet build OODD.Charts.slnx -c Release --no-restore
 
+      # CrossTfmTests / PatternFillProbeTests 需要另一个 TFM 的 PNG 作对照物。
+      # 先让 net462 把证据落盘；首次缺少 net8.0 对照物会失败，下一步校验文件确实写出来了。
+      - name: Warm up net462 cross-TFM evidence
+        continue-on-error: true
+        run: dotnet test tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj -c Release -f net462 --no-build --filter "FullyQualifiedName~CrossTfmTests|FullyQualifiedName~PatternFillProbeTests"
+
+      - name: Verify net462 evidence exists
+        shell: pwsh
+        run: |
+          foreach ($f in @('artifacts/cross-tfm/net462-temperature-96dpi.png', 'artifacts/pattern-probe/net462-pattern-96dpi.png')) {
+            if (-not (Test-Path $f)) { throw "Cross-TFM evidence missing: $f" }
+          }
+
       - name: Test (net8.0)
         run: dotnet test tests/OODD.Charts.Tests/OODD.Charts.Tests.csproj -c Release -f net8.0 --no-build
 
